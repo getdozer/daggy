@@ -218,6 +218,24 @@ where
         }
     }
 
+    /// Create a new `Graph` by mapping node and edge weights to new values.
+    ///
+    /// This method consumes `self`.
+    ///
+    /// The resulting graph has the same structure and the same graph indices as `self`.
+    pub fn map_owned<F, G, N2, E2>(self, node_map: F, edge_map: G) -> Dag<N2, E2, Ix>
+    where
+        F: FnMut(NodeIndex<Ix>, N) -> N2,
+        G: FnMut(EdgeIndex<Ix>, E) -> E2,
+    {
+        let graph = self.graph.map_owned(node_map, edge_map);
+        let cycle_state = self.cycle_state;
+        Dag {
+            graph: graph,
+            cycle_state: cycle_state,
+        }
+    }
+
     /// Create a new `Dag` by mapping node and edge weights. A node or edge may be mapped to `None`
     /// to exclude it from the resulting `Dag`.
     ///
