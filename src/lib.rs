@@ -236,6 +236,28 @@ where
         }
     }
 
+    /// Create a new `Graph` by mapping node and edge weights to new values.
+    ///
+    /// This method consumes `self`.
+    ///
+    /// The resulting graph has the same structure and the same graph indices as `self`.
+    pub fn try_map<F, G, N2, E2, Error>(
+        self,
+        node_map: F,
+        edge_map: G,
+    ) -> Result<Dag<N2, E2, Ix>, Error>
+    where
+        F: FnMut(NodeIndex<Ix>, N) -> Result<N2, Error>,
+        G: FnMut(EdgeIndex<Ix>, E) -> Result<E2, Error>,
+    {
+        let graph = self.graph.try_map(node_map, edge_map)?;
+        let cycle_state = self.cycle_state;
+        Ok(Dag {
+            graph: graph,
+            cycle_state: cycle_state,
+        })
+    }
+
     /// Create a new `Dag` by mapping node and edge weights. A node or edge may be mapped to `None`
     /// to exclude it from the resulting `Dag`.
     ///
